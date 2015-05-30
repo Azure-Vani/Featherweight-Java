@@ -5,16 +5,15 @@
     open Core.Caml
 }
 
-
 let digit = ['0'-'9']+
-let identifier = ['a'-'z''A'-'Z'_]['a'-'z''A'-'Z''0'-'9'_]+ 
+let identifier = ['a'-'z''A'-'Z''_']['a'-'z''A'-'Z''0'-'9''_']+ 
 
 let space = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 
 rule token = parse
-  | digit { DIGIT(int_of_string @@ lexeme lexbuf) }
-  | identifier { STR(lexeme lexbuf) }
+  | digit { INT(int_of_string @@ lexeme lexbuf) }
+  | identifier { IDEN(lexeme lexbuf) }
 
   | "class" { CLASS }
   | "return" { RETURN }
