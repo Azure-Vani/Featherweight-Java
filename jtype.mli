@@ -48,7 +48,4 @@ and term =
 and j_value = 
     | Primary of int
     | Variable of string
-    | Object of j_object (* only occurs at runtime *)
-
-and j_object = string * j_value list
 
