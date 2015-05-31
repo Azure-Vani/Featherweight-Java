@@ -21,6 +21,7 @@ and j_class = {
 }
 
 and j_method = {
+    name: string;
     return_type: j_type; 
     params: j_declar list;
     return_stat: term
@@ -41,10 +42,12 @@ and term =
     | Cast of string * term
     | New of string * (term list)
     | Invoke of term * string * (term list)
+    | Access of term * string
     | Value of j_value
 
 and j_value = 
     | Primary of int
+    | Variable of string
     | Object of j_object (* only occurs at runtime *)
 
 and j_object = string * j_value list

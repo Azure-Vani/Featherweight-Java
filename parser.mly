@@ -1,9 +1,11 @@
+%{
+    open Jtype
+%}
+
 %token <int> INT
 %token <string> IDEN
-%token <Jtype.j_type> TYPE
 %token CLASS
 %token RETURN
-%token THIS
 %token EXTENDS
 %token SUPER
 %token NEW
@@ -30,7 +32,7 @@
 %%
 
 prog:
-    | c = class_list; t = expr; EOF { Jtype.{classes = c; term = t} } 
+    | c = class_list; t = expr; EOF { {classes = c; term = t} } 
     ;
 
 class_list: 
@@ -47,7 +49,7 @@ class_body:
     ;
 
 declar:
-    | t = TYPE; x = IDEN { Jtype.{ty = t; iden = x} }
+    | t = IDEN; x = IDEN { {ty = t; iden = x} }
     ;
 
 declar_params:
@@ -59,24 +61,24 @@ invok_params:
     ;
 
 class_body_item:
-    | d = declar; COMMA 
+    | d = declar; SEMICOLON 
         { `Field d }
 
     | IDEN; L_PARENTHESIS; l = declar_params; R_PARENTHESIS; 
-        L_BRACE; s = separated_list(SEMICOLON, statement); SEMICOLON; R_BRACE 
-        { `Cons Jtype.{params = l; statements = s} }
+        L_BRACE; s = list(statement); R_BRACE 
+        {flush stdout; `Cons {params = l; statements = s} }
 
-    | t = TYPE; IDEN; L_PARENTHESIS; l = declar_params; R_PARENTHESIS;
+    | t = IDEN; n = IDEN; L_PARENTHESIS; l = declar_params; R_PARENTHESIS;
         L_BRACE; RETURN; e = expr; SEMICOLON; R_BRACE; 
-        { `Method Jtype.{return_type = t; params = l; return_stat = e} }
+        { `Method {name = n; return_type = t; params = l; return_stat = e} }
 
     ;
 
 statement:
-    | SUPER; L_PARENTHESIS; l = invok_params; R_PARENTHESIS 
+    | SUPER; L_PARENTHESIS; l = invok_params; R_PARENTHESIS; SEMICOLON 
         { `Super l }
     
-    | THIS; DOT; v = IDEN; EQ; e = expr; 
+    | IDEN; DOT; v = IDEN; EQ; e = expr;  SEMICOLON
         { `Assign (v, e) }
     ;
 
@@ -95,5 +97,9 @@ expr:
 
     | e = expr; DOT; f = IDEN; L_PARENTHESIS; l = invok_params; R_PARENTHESIS {Invoke (e, f, l)} %prec INVOKE
 
+    | e = expr; DOT; x = IDEN; {Access (e, x)}
+
     | x = INT {Value (Primary x)}
+
+    | x = IDEN {Value (Variable x)}
 
