@@ -30,8 +30,8 @@ let process_class cl =
         None
     with Return_ty_mismatch info -> Some info
 
-let () = 
-    let lexbuf = Lexing.from_channel (In_channel.create "test.java") in
+let run filename = 
+    let lexbuf = Lexing.from_channel (In_channel.create filename) in
     let adt = Parser.prog Lexer.token lexbuf in
         process_class adt.classes >>= fun () ->
             Utils.traverse_adt "" adt;
@@ -42,3 +42,23 @@ let () =
                         in Utils.print_term res
                 | None -> printf "Type error\n"
 
+let test_list = ["examples/general.java"; "examples/subtype.java"]
+
+let command =
+    Command.basic
+        ~summary: "An interpreter for featherweight Java"
+        Command.Spec.(
+            empty
+            +> flag "-f" (optional string) ~doc:"string Run the FJ program from given filename"
+            +> flag "-t" no_arg ~doc:"Run all test case under examples/ automatically"
+        )
+        (fun filename test () ->
+            match filename with
+                | Some name -> run name
+                | None -> (match test with
+                    | true -> ListLabels.iter ~f:run test_list
+                    | false -> printf "usage: ./main.native [-s filename] [-t]\n"
+                    )
+            )
+
+let () = Command.run ~version:"0.1" command
