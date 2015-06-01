@@ -1,4 +1,5 @@
 open Jtype
+open Core.Std
 
 let ty_int = "int"
 let ty_bool = "bool"
@@ -8,8 +9,8 @@ let is_int = (=) ty_int
 let is_bool = (=) ty_bool
 
 let rec is_sub_class x y = 
-    if x == y then true
-    else if x == ty_root_object then false
+    if x = y then true
+    else if x = ty_root_object then false
         else try
                 let super = Class.get_super_class x 
                 in is_sub_class super y
@@ -84,5 +85,5 @@ and infer_term = function
 
     | Value v -> match v with  
         | Primary _ -> true |- ty_int
-        | Variable _ -> true |- ty_int
+        | Variable x -> true |- Class.get_variable_ty x
 

@@ -6,9 +6,40 @@ class A extends Object {
         this.a = b;
     }
 
-    int f() {
-        return this.a;
+    C f(B oth) {
+        return new C();
     }
 }
 
-(new A(1)).f()
+class B extends Object {
+    int c;
+
+    B() {
+        super();
+        this.c = 3;
+    }
+    
+    C f() {
+        return new C();
+    }
+}
+
+class C extends Object {
+    C() {
+        super();
+    }
+}
+
+class D extends Object {
+    D() {
+        super();
+    }
+    B g() {
+        return new B();
+    }
+    int h() {
+        return new B();
+    }
+}
+
+(new A(1)).f((new D()).g())

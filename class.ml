@@ -1,8 +1,13 @@
 open Jtype
 
 (* pravite variable and functions *)
-let classes = ref [] 
+let classes:j_class list ref = ref [] 
+let context:(string * j_type) list ref = ref []
+
 let class_name_eq x (c:j_class) = c.name = x
+
+let set_context c =
+    context := c
 
 (* set functions *)
 let set_classes (c:j_class list) =
@@ -11,6 +16,9 @@ let set_classes (c:j_class list) =
 (* predicated functions *)
 let is_class name =
     List.exists (class_name_eq name) !classes
+
+let get_variable_ty x = 
+    List.assoc x !context
 
 (* get functions *)
 let get_class name = 
