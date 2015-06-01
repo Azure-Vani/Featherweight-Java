@@ -1,5 +1,9 @@
 open Jtype
 
+exception Dummy_exp
+exception No_field of string
+exception No_method of string
+
 (* pravite variable and functions *)
 let classes:j_class list ref = ref [] 
 let context:(string * j_type) list ref = ref []
@@ -28,16 +32,25 @@ let get_cons name =
     let items = (get_class name).items
     in match List.find (function `Cons _ -> true | _ -> false) items with
         | `Cons x -> x
+        | _ -> raise Dummy_exp
 
-let get_field name var = 
-    let items = (get_class name).items
-    in match List.find (function `Field x when x.iden = var -> true | _ -> false) items with
-        | `Field x -> x
+let rec get_field name var = 
+    match name with
+        | "Object" -> raise @@ No_field ("Can not found field " ^ var ^ "in class " ^ name)
+        | _ -> let cl = get_class name
+               in try (match List.find (function `Field x when x.iden = var -> true | _ -> false) cl.items with 
+                            | `Field x -> x
+                            | _ -> raise Dummy_exp)
+               with Not_found -> get_field cl.super var
 
-let get_method name f = 
-    let items = (get_class name).items
-    in match List.find (function `Method x when x.name = f -> true | _ -> false) items with
-        | `Method x -> x
+let rec get_method name f = 
+    match name with
+        | "Object" -> raise @@ No_method ("Can not found method " ^ f ^ "in class " ^ name)
+        | _ -> let cl = get_class name
+               in try (match List.find (function `Method x when x.name = f -> true | _ -> false) cl.items with
+                            | `Method x -> x
+                            | _ -> raise Dummy_exp)
+               with Not_found -> get_method cl.super f
 
 (* class meta info *)
 let get_super_class x = 

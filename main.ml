@@ -7,9 +7,9 @@ let (>>=) x f = match x with
     | Some err -> printf "[error] Return type error at method: %s\n" err
     | None -> f ()
 
-let check_method_return_ty = function
+let check_method_return_ty (cl:j_class) = function
     | `Method (mtd:j_method) -> (
-            Class.set_context @@ List.map ~f:(fun declar ->
+            Class.set_context @@ ("this", cl.name) :: List.map ~f:(fun declar ->
                 match declar with
                     | {ty = ty; iden = iden} -> (iden, ty))
             mtd.params;
@@ -21,7 +21,7 @@ let check_method_return_ty = function
     | `Cons _ | `Field _ -> ()
 
 let check_return_ty c =
-    ListLabels.iter ~f:check_method_return_ty c.items
+    ListLabels.iter ~f:(check_method_return_ty c) c.items
 
 let process_class cl = 
     Class.set_classes cl;

@@ -4,6 +4,13 @@
     open Parser
     open Core.Caml
     open Core.Std
+
+    let next_line lexbuf =
+        let pos = lexbuf.lex_curr_p 
+        in lexbuf.lex_curr_p <- {
+            pos with pos_bol = lexbuf.lex_curr_pos;
+                     pos_lnum = pos.pos_lnum + 1
+        }
 }
 
 let digit = ['0'-'9']+
@@ -34,7 +41,7 @@ rule token = parse
   | digit { printf "%s\n" @@ lexeme lexbuf; flush stdout; INT(int_of_string @@ lexeme lexbuf) }
   | identifier { printf "%s\n" @@ lexeme lexbuf; flush stdout; IDEN(lexeme lexbuf) }
 
-  | space { (* printf "space\n"; *) flush stdout; token lexbuf }
-  | newline { (* printf "newline\n"; *) flush stdout; token lexbuf }
+  | space { token lexbuf }
+  | newline { next_line lexbuf; token lexbuf }
 
   | eof            { EOF }
