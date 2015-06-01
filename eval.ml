@@ -17,7 +17,7 @@ let add_field_to_obj ~name ~value obj = match obj with
 
 let rec new_class name values = 
     let context = Class.get_cons_params_name name <+> values in
-    let empty = (Object ("name", [], Variable "Object")) in
+    let empty = (Object (name, [], Variable "Object")) in
     let statements = Class.get_cons_statements name 
     in List.fold_left (fun obj stat -> 
         match stat with
@@ -46,6 +46,10 @@ and (|.) obj name = match obj with
     | Object (_, fields, _) -> List.assoc name fields
 
 and (<+>) xs ys = List.combine xs ys
+
+and (<?) var context = 
+    try List.assoc var context 
+    with _ -> raise (Runtime_err ("Unbound variable: " ^ var))
 
 and eval = function
     | Plus (t1, t2) ->
@@ -82,5 +86,9 @@ and eval = function
             eval term >>= fun obj ->
                 return (obj |. field)
 
-    | Value v -> return v
+    | Value v -> match v with
+        | Primary x -> return @@ Primary x
+        | Variable var -> 
+                get >>= fun context ->
+                    return (var <? context)
 

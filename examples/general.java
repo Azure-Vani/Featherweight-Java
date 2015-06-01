@@ -6,8 +6,12 @@ class A extends Object {
         this.a = b;
     }
 
-    C f(B oth) {
-        return new C();
+    C p(B oth) {
+        return new C(oth);
+    }
+
+    int fuck() {
+        return 0;
     }
 }
 
@@ -19,14 +23,17 @@ class B extends Object {
         this.c = 3;
     }
     
-    C f() {
-        return new C();
+    C g(B oth) {
+        return new C(oth);
     }
 }
 
 class C extends Object {
-    C() {
+    int f;
+
+    C(B oth) {
         super();
+        this.f = oth.c;
     }
 }
 
@@ -37,9 +44,9 @@ class D extends Object {
     B g() {
         return new B();
     }
-    int h() {
+    B h() {
         return new B();
     }
 }
 
-(new A(1)).f((new D()).g())
+(new A(1)).p((new D()).g())
