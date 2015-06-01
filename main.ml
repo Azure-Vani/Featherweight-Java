@@ -36,5 +36,9 @@ let () =
         process_class adt.classes >>= fun () ->
             Utils.traverse_adt "" adt;
             match Type.infer_term adt.term with
-                | Some ty -> printf "%s\n" ty
+                | Some ty -> 
+                        printf "%s\n" ty;
+                        let res = Eval.run_eval [] adt.term
+                        in Utils.print_term res
                 | None -> printf "Type error\n"
+

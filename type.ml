@@ -49,8 +49,7 @@ and (->>) t ty = match infer_term t with
 
 and (<=>) terms declars = 
     try
-        let f = fun t declar -> t <: declar.ty
-        in ListLabels.for_all2 terms declars ~f
+        ListLabels.for_all2 terms declars ~f:(<:)
     with Invalid_argument _ -> false
 
 and (~>) = Class.is_class
@@ -73,11 +72,11 @@ and infer_term = function
             ((term <: ty) || (term ->> ty)) |- ty
 
     | New (name, params) -> 
-            (~>name && params <=> Class.get_cons_params name) |- name
+            (~>name && params <=> Class.get_cons_params_type name) |- name
 
     | Invoke (term, f, params) ->
             term >>= 
-                fun name -> params <=> Class.get_method_params name f |- Class.get_method_returnty name f
+                fun name -> params <=> Class.get_method_params_type name f |- Class.get_method_returnty name f
 
     | Access (term, x) ->
             term >>=

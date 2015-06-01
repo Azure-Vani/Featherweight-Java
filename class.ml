@@ -44,15 +44,27 @@ let get_super_class x =
     (get_class x).super 
 
 (* constructor relevant *)
-let get_cons_params x = 
-    (get_cons x).params
+let get_cons_params_type x = 
+    List.map (fun x -> x.ty) (get_cons x).params
+
+let get_cons_params_name x =
+    List.map (fun x -> x.iden) (get_cons x).params
+ 
+let get_cons_statements x =
+    (get_cons x).statements
 
 (* method relevant *)
-let get_method_params name f = 
-    (get_method name f).params
+let get_method_params_type name f = 
+    List.map (fun x -> x.ty) (get_method name f).params
+
+let get_method_params_name name f =
+    List.map (fun x -> x.iden) (get_method name f).params
 
 let get_method_returnty name f =
     (get_method name f).return_type
+
+let get_method_return_term name f =
+    (get_method name f).return_stat
 
 (* field relevant *)
 let get_field_ty name var = 

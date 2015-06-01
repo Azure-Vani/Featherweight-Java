@@ -48,4 +48,5 @@ and term =
 and j_value = 
     | Primary of int
     | Variable of string
+    | Object of string * ((string * j_value) list) * j_value
 

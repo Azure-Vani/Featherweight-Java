@@ -33,3 +33,18 @@ let traverse_class padding {name = name; super = super; items = items} =
 
 let traverse_adt padding {classes = classes; term = _}  = 
     ListLabels.iter ~f:(fun x -> traverse_class padding x) classes
+
+let rec print_term = function 
+    | Primary x -> printf "%d\n" x
+    | Variable st -> printf "%s\n" st
+    | Object ("Object", _, _) -> printf "Object\n"
+    | Object (name, fields, super) ->
+            printf "%s->{\n" name;
+            List.iter (function
+                | (field, value) -> printf "%s: " field;
+                                    print_term value
+            ) fields;
+            printf "}\n";
+            printf "super is: \n";
+            print_term super
+
