@@ -5,43 +5,132 @@
     open Core.Caml
     open Core.Std
 
+    exception Token_error of int*int*string
+
     let next_line lexbuf =
-        let pos = lexbuf.lex_curr_p 
+        let pos = lexbuf.lex_curr_p
         in lexbuf.lex_curr_p <- {
             pos with pos_bol = lexbuf.lex_curr_pos;
-                     pos_lnum = pos.pos_lnum + 1
+                     pos_lnum = pos.pos_lnum + 1;
         }
+
+    let get_line_number lexbuf = lexbuf.lex_curr_p.pos_lnum
+
+    let get_col_number lexbuf = lexbuf.lex_curr_p.pos_cnum - lexbuf.lex_curr_p.pos_bol - (String.length @@ lexeme lexbuf) + 1
+
+    let debug_print str lexbuf = ()
+        (* only enable in debug
+        printf "@(%d, %d) %s\n" (get_line_number lexbuf) (get_col_number lexbuf) str;
+        flush stdout
+        *)
 }
 
 let digit = ['0'-'9']+
-let identifier = ['a'-'z''A'-'Z''_']['a'-'z''A'-'Z''0'-'9''_']* 
+let identifier = ['a'-'z''A'-'Z''_']['a'-'z''A'-'Z''0'-'9''_']*
 
 let space = [' ' '\t']+
 let newline = '\r' | '\n' | "\r\n"
 
 rule token = parse
-  | "class" {printf "<class>\n"; flush stdout; CLASS }
-  | "return" {printf "<return>\n"; flush stdout; RETURN }
-  | "extends" {printf "<extends>\n"; flush stdout; EXTENDS }
-  | "super" {printf "<super>\n"; flush stdout; SUPER }
-  | "new" {printf "<new>\n"; flush stdout; NEW }
+  | "class" {
+      debug_print "<class>" lexbuf;
+      CLASS
+  }
 
-  | '+' { printf "+\n"; flush stdout; PLUS }
-  | '-' { printf "-\n"; flush stdout; MINUS }
-  | '*' { printf "*\n"; flush stdout; TIMES }
-  | '{' { printf "{\n"; flush stdout; L_BRACE }
-  | '}' { printf "}\n"; flush stdout; R_BRACE }
-  | '(' { printf "(\n"; flush stdout; L_PARENTHESIS }
-  | ')' { printf ")\n"; flush stdout; R_PARENTHESIS }
-  | ',' { printf ",\n"; flush stdout; COMMA }
-  | ';' { printf ";\n"; flush stdout; SEMICOLON }
-  | '.' { printf ".\n"; flush stdout; DOT }
-  | '=' { printf "=\n"; flush stdout; EQ }
+  | "return" {
+      debug_print "<return>" lexbuf;
+      RETURN
+  }
 
-  | digit { printf "%s\n" @@ lexeme lexbuf; flush stdout; INT(int_of_string @@ lexeme lexbuf) }
-  | identifier { printf "%s\n" @@ lexeme lexbuf; flush stdout; IDEN(lexeme lexbuf) }
+  | "extends" {
+      debug_print "<extends>\n" lexbuf;
+      EXTENDS
+  }
 
-  | space { token lexbuf }
-  | newline { next_line lexbuf; token lexbuf }
+  | "super" {
+      debug_print "<super>" lexbuf;
+      SUPER
+  }
+
+  | "new" {
+      debug_print "<new>" lexbuf;
+      NEW
+  }
+
+  | '+' {
+      debug_print "+" lexbuf;
+      PLUS
+  }
+
+  | '-' {
+      debug_print "-" lexbuf;
+      MINUS
+  }
+
+  | '*' {
+      debug_print "*" lexbuf;
+      TIMES
+  }
+
+  | '{' {
+      debug_print "{" lexbuf;
+      L_BRACE
+  }
+
+  | '}' {
+      debug_print "}" lexbuf;
+      R_BRACE
+  }
+
+  | '(' {
+      debug_print "(" lexbuf;
+      L_PARENTHESIS
+  }
+
+  | ')' {
+      debug_print ")" lexbuf;
+      R_PARENTHESIS
+  }
+
+  | ',' {
+      debug_print "," lexbuf;
+      COMMA
+  }
+
+  | ';' {
+      debug_print ";\n" lexbuf;
+      SEMICOLON
+  }
+
+  | '.' {
+      debug_print ".\n" lexbuf;
+      DOT
+  }
+
+  | '=' {
+      debug_print "=\n" lexbuf;
+      EQ
+  }
+
+  | digit {
+      debug_print (lexeme lexbuf) lexbuf;
+      INT(int_of_string @@ lexeme lexbuf)
+  }
+
+  | identifier {
+      debug_print (lexeme lexbuf) lexbuf;
+      IDEN(lexeme lexbuf)
+  }
+
+  | space {
+      token lexbuf
+  }
+
+  | newline {
+      next_line lexbuf;
+      token lexbuf
+  }
 
   | eof            { EOF }
+
+  |  _ {raise (Token_error (get_line_number lexbuf, get_col_number lexbuf, lexeme lexbuf))}

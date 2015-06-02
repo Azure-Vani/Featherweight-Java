@@ -9,6 +9,10 @@ class A extends Object {
     int f() {
         return this.a;
     }
+
+    int g(int x) {
+        return x;
+    }
 }
 
 class B extends A {
