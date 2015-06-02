@@ -14,6 +14,8 @@ Usage
 =======
 The usage for this interpreter is
     
-    ./main.native [-f filename] [-t]
+    ./main.native [-f filename] [-t] [-d]
 
-in which the `-f` flag denoting that excecute a program from source file and `-t` flag denoting that automantically run all test source files under the `example/` directory
++ `-f` Excecute a program from source file 
++ `-t` Automantically run all test source files under the `example/` directory
++ `-d` Enable debug mode
