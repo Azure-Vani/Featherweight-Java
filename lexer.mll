@@ -4,8 +4,7 @@
     open Parser
     open Core.Caml
     open Core.Std
-
-    exception Token_error of int*int*string
+    open Exceptions
 
     let next_line lexbuf =
         let pos = lexbuf.lex_curr_p
@@ -133,4 +132,4 @@ rule token = parse
 
   | eof            { EOF }
 
-  |  _ {raise (Token_error (get_line_number lexbuf, get_col_number lexbuf, lexeme lexbuf))}
+  |  _ {raise (Token_exn (get_line_number lexbuf, get_col_number lexbuf, lexeme lexbuf))}

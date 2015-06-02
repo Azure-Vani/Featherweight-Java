@@ -2,6 +2,7 @@ open Core.Std
 
 type syntax_err = 
     | Lex_err of string
+    | Parse_err
 
 type fatal_err = 
     | Not_found_file
@@ -23,6 +24,7 @@ let error err_ty ~line ~col ~filename =
                 printf "Syntax error: ";
                 (match sub_err with
                     | Lex_err token -> printf "Unexpected identifier: \"%s\"\n" token
+                    | Parse_err -> printf "Invalid syntax\n"
                 )
     );
     printf "  File \"%s\", line %d, column %d\n" filename line col;

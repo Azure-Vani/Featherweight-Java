@@ -2,6 +2,7 @@ open Core.Std
 open Jtype
 open Lexing
 open Error_handler
+open Exceptions
 
 exception Return_ty_mismatch of string
 
@@ -39,8 +40,13 @@ let process_class cl =
 let try_to_parse lexbuf filename =
     try Parser.prog Lexer.token lexbuf
     with
-        Lexer.Token_error (line, col, token) ->
-            error (Syntax_err (Lex_err token)) ~line ~col ~filename
+        | Token_exn (line, col, token) ->
+                error (Syntax_err (Lex_err token)) ~line ~col ~filename
+
+        | Parser.Error ->
+                let line = Lexer.get_line_number lexbuf in
+                let col = Lexer.get_col_number lexbuf
+                in error (Syntax_err Parse_err) ~line ~col ~filename
 
 let try_to_open_file filename =
     try Lexing.from_channel (In_channel.create filename)
