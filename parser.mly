@@ -26,8 +26,9 @@
 
 %left PLUS MINUS
 %left TIMES
-%nonassoc INVOKE
-%nonassoc CAST
+%right CAST
+%left DOT
+
 %start <Jtype.adt> prog
 %%
 
@@ -41,7 +42,7 @@ class_list:
 
 j_class:
     CLASS; n=IDEN; EXTENDS; s=IDEN; L_BRACE; b = class_body; R_BRACE 
-    { Jtype.{name = n; super = s; items = b} }
+    { {name = n; super = s; items = b} }
     ;
 
 class_body:
@@ -95,7 +96,7 @@ expr:
 
     | NEW; v = IDEN; L_PARENTHESIS; l = invok_params; R_PARENTHESIS {New (v, l)}
 
-    | e = expr; DOT; f = IDEN; L_PARENTHESIS; l = invok_params; R_PARENTHESIS {Invoke (e, f, l)} %prec INVOKE
+    | e = expr; DOT; f = IDEN; L_PARENTHESIS; l = invok_params; R_PARENTHESIS {Invoke (e, f, l)}
 
     | e = expr; DOT; x = IDEN; {Access (e, x)}
 
