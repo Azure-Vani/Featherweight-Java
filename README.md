@@ -1,12 +1,12 @@
 Installation
 ============
 
-The interpreter dependent `Core` and `menhir`, you can get them by
+The interpreter depends on `Core` and `menhir`, you can get them by
     
     opam install core
     opam install menhir
 
-Then you can build the project at the project directory by
+Then you can build it at the project directory by
 
     corebuild -use-menhir main.native
 
