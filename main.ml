@@ -15,16 +15,15 @@ let (>|) flag f = match flag with
     | false -> ()
 
 let check_method_return_ty (cl:j_class) = function
-    | `Method (mtd:j_method) -> (
+    | `Method (mtd:j_method) ->
             Class.set_context @@ ("this", cl.name) :: List.map ~f:(fun declar ->
                 match declar with
                     | {ty = ty; iden = iden} -> (iden, ty))
             mtd.params;
-            match Type.infer_term mtd.return_stat with
-                | Some ty -> if ty = mtd.return_type then ()
-                             else raise (Return_ty_mismatch mtd.name)
+            (match Type.(<:) mtd.return_stat mtd.return_type with
+                | true -> ()
+                | false -> raise (Return_ty_mismatch mtd.name))
 
-                | None -> raise @@ Return_ty_mismatch mtd.name)
     | `Cons _ | `Field _ -> ()
 
 let check_return_ty c =
@@ -65,7 +64,7 @@ let run debug filename =
                         in Utils.print_term res
                 | None -> printf "Type error\n"
 
-let test_list = ["examples/general.java"; "examples/subtype.java"]
+let test_list = ["examples/general.java"; "examples/subtype.java"; "examples/exhaustive.java"]
 
 let command =
     Command.basic
@@ -73,8 +72,8 @@ let command =
         Command.Spec.(
             empty
             +> flag "-f" (optional string) ~doc:"string Run the FJ program from given filename"
-            +> flag "-t" no_arg ~doc:"Run all test case under examples/ automatically"
-            +> flag "-d" no_arg ~doc:"Print debug infomation"
+            +> flag "-t" no_arg ~doc:"run all test case under examples/ automatically"
+            +> flag "-d" no_arg ~doc:"print debug infomation"
         )
         (fun filename test debug() ->
             match filename with

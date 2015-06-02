@@ -43,7 +43,11 @@ and (?-) obj = match obj with
     | Object (name, _, _) -> name
 
 and (|.) obj name = match obj with
-    | Object (_, fields, _) -> List.assoc name fields
+    | Object (_, fields, super) -> 
+            try List.assoc name fields 
+            with Not_found -> (match super with
+                                | (Object _) as obj -> obj |. name
+                                | _ -> raise Not_found)
 
 and (<+>) xs ys = List.combine xs ys
 
